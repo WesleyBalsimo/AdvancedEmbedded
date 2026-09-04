@@ -19,6 +19,8 @@ num_b_wins = 0
 length = 10000
 for _ in range(length):
     heat = 5
+    a_win_game = 0
+    b_win_game = 0
     for _ in range(heat):
         a_score = roll_dice(3, 12)
         b_score = roll_dice(4, 8)
@@ -30,14 +32,16 @@ for _ in range(length):
             #print("Player B wins with a score of", b_score, "against Player A's score of", a_score)
             num_b_wins += 1
         if num_a_wins >= 3:
+            a_win_game += 1
             break
         if num_b_wins >= 3:
+            b_win_game += 1
             break
     num_a_wins = 0
     num_b_wins = 0
 
-print("Player A wins:", num_a_wins)
-print("Player B wins:", num_b_wins)
+print("Player A wins:", a_win_game)
+print("Player B wins:", b_win_game)
 
 #check to see if for loop adds up
 sum = num_a_wins + num_b_wins
