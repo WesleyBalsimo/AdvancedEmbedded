@@ -18,9 +18,9 @@ def roll_dice(num_rolls, sides):
 num_a_wins = 0
 num_b_wins = 0
 length = 10000
+a_win_game = 0
+b_win_game = 0
 for _ in range(length):
-    a_win_game = 0
-    b_win_game = 0
     win_condition = 0
     while not(win_condition):
         a_score = roll_dice(3, 12)
@@ -33,12 +33,12 @@ for _ in range(length):
             #print("Player B wins with a score of", b_score, "against Player A's score of", a_score)
             num_b_wins += 1
         if num_a_wins >= 5:
-            if num_a_wins > (num_b_wins + 1)
+            if num_a_wins > (num_b_wins + 1):
                 a_win_game += 1
                 win_condition = 1
                 break
         if num_b_wins >= 5:
-            if num_b_wins > (num_a_wins + 1)
+            if num_b_wins > (num_a_wins + 1):
                 b_win_game += 1
                 win_condition = 1
                 break
@@ -49,5 +49,5 @@ print("Player A wins:", a_win_game)
 print("Player B wins:", b_win_game)
 
 #check to see if for loop adds up
-sum = num_a_wins + num_b_wins
+sum = a_win_game + b_win_game
 print("Total games played:", sum)
