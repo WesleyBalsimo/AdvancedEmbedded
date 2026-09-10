@@ -20,8 +20,8 @@ num_b_wins = 0
 length = 10000
 a_win_game = 0
 b_win_game = 0
+win_condition = 0
 for _ in range(length):
-    win_condition = 0
     while not(win_condition):
         a_score = roll_dice(3, 12)
         b_score = roll_dice(4, 8)
@@ -42,12 +42,13 @@ for _ in range(length):
                 b_win_game += 1
                 win_condition = 1
                 break
+    win_condition = 0        
     num_a_wins = 0
     num_b_wins = 0
 
 print("Player A wins:", a_win_game)
 print("Player B wins:", b_win_game)
 
-#check to see if for loop adds up
+#check to see if correct num of games were played
 sum = a_win_game + b_win_game
 print("Total games played:", sum)
