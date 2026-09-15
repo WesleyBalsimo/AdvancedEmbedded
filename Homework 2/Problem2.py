@@ -1,6 +1,7 @@
 #dice game
 #player A rolls 3d12 Player B rolls 4d8
 #player A wins on ties
+#Best of 5
 
 from random import randint
 #randint example
@@ -16,11 +17,11 @@ def roll_dice(num_rolls, sides):
 #montecarlo simulation
 num_a_wins = 0
 num_b_wins = 0
+a_win_game = 0
+b_win_game = 0
 length = 10000
 for _ in range(length):
     heat = 5
-    a_win_game = 0
-    b_win_game = 0
     for _ in range(heat):
         a_score = roll_dice(3, 12)
         b_score = roll_dice(4, 8)
@@ -44,5 +45,5 @@ print("Player A wins:", a_win_game)
 print("Player B wins:", b_win_game)
 
 #check to see if for loop adds up
-sum = num_a_wins + num_b_wins
+sum = a_win_game + b_win_game
 print("Total games played:", sum)
