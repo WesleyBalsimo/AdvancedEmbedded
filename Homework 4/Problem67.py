@@ -19,7 +19,7 @@ while(1):
     d2y = -dy - 10*y - 10*x
     dy += d2y * dt
     y += dy * dt
-    duty = int(y * 20_000 + 500_000)
+    duty = int(y * 10_000 + 1_500_000)
     Control.duty_ns(duty)
     print(y)
     sleep(dt)
