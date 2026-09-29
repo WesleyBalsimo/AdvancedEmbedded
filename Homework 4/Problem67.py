@@ -21,6 +21,7 @@ while(1):
     y += dy * dt
     duty = int(y * 10_000 + 1_500_000)
     Control.duty_ns(duty)
-    print(y)
+    print(duty)
     sleep(dt)
     duty_previous = duty
+                  
