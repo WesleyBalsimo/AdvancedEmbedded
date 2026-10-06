@@ -54,7 +54,6 @@ def check_secret(x, y):
         return False
     if x_pixel_max-40 <= x <= x_pixel_max and y_pixel_max-40 <= y <= y_pixel_max:
         return True
-    return False
 
 # initialize the LCD
 LCD.Init()
