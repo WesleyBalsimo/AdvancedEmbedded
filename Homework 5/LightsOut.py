@@ -96,8 +96,7 @@ while not win_flag:
             if box_index < len(boxes) - 1:
                 toggle_color(box_index + 1)
     
-    win_flag = check_win()
-    win_flag = check_secret(x, y)
+    win_flag = check_win() or check_secret(x, y)
     LCD.Text("Tries: " + str(tries), 200, 100, white, 3)
     x_last, y_last = x, y
     sleep_ms(250)
