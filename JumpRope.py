@@ -18,7 +18,9 @@ jumpPin = Pin(15, Pin.IN, Pin.PULL_UP)
 #interrupts
 def jump(jumpPin):
 	global jumpFlag
+	global time2
 	jumpFlag = 1
+	time2 = ticks_ms()
 	
 def start(startPin):
 	global startFlag
@@ -30,27 +32,28 @@ startPin.irq(trigger=Pin.IRQ_FALLING, handler=start)
 #Random number generator
 def new_rope():
 	global jumpFlag
+	global time1
 	length = randint(0, 480)
-	LCD.Solid_Box(length, 240, length+10, 250, red)
+	LCD.Solid_Box(length, 240, length+1, 260, red)
 	count = 0
+	previous_y = None
+	time1 = ticks_ms()
 	for i in range(0, 480):
-		if jumpFlag == 1:
-			if count == 0:
-				LCD.Solid_Box(i, 230, i+10, 240, blue)
-				LCD.Solid_Box(i-10, 240, i, 250, grey)
-			elif count > 0 and count < 40:
-				LCD.Solid_Box(i, 230, i+10, 240, blue)
-				LCD.Solid_Box(i-10, 230, i, 240, grey)
-			elif count == 40:
-				LCD.Solid_Box(i, 240, i+10, 250, blue)
-				LCD.Solid_Box(i-10, 230, i, 240, grey)
-				jumpFlag = 0
+		jumping = jumpFlag == 1
+		if jumping:
 			count += 1
+			box_y = 220
+			if count == 30:
+				jumpFlag = 0
+				count = 0
 		else:
-			LCD.Solid_Box(i, 240, i+10, 250, blue)
-			LCD.Solid_Box(i-10, 240, i, 250, grey)
-			if i == length:
-				return True
+			box_y = 240
+		if previous_y is not None:
+			LCD.Solid_Box(i-1, previous_y, i+2, previous_y+10, grey)
+		LCD.Solid_Box(i, box_y, i+3, box_y+10, blue)
+		previous_y = box_y
+		if not jumping and i == length:
+			return True
 		sleep_ms(10)
 	jumpFlag = 0
 
@@ -60,6 +63,16 @@ def start_screen():
 	LCD.Text("Press button 14 to begin", 150, 25, white, 3)
 	LCD.Text("Score: " + str(score), 200, 100, white, 3)
 	LCD.Solid_Box(0, 251, 479, 261, white)
+
+def reset_screen():
+	LCD.Clear(grey)
+	LCD.Text("Score: " + str(score), 200, 100, white, 3)
+	LCD.Solid_Box(0, 251, 479, 261, white)
+
+def lose_screen():
+	LCD.Clear(grey)
+	LCD.Text("You lose!", 200, 100, white, 3)
+	LCD.Text("Score: " + str(score), 200, 150, white, 3)
 
 score = 0
 jumpFlag = 0
@@ -71,6 +84,8 @@ while loseFlag is not True:
 		pass
 	loseFlag = new_rope()
 	sleep_ms(1000)
-	startFlag = False
+	#score is a work in progress, should be higher for getting closer to the rope
+	score = (time2 - time1)
+	reset_screen()
 
-	
+lose_screen()
