@@ -5,10 +5,10 @@ from time import sleep_ms, ticks_ms, ticks_diff
 from math import sqrt
 
 #constant definitions
-NUM_OF_CLICKS = 8
-NUM_OF_INPUTS = 16
-MIN_BPM       = 80
-MAX_BPM       = 120
+NUM_OF_CLICKS = 5
+NUM_OF_INPUTS = 10
+MIN_BPM       = 40
+MAX_BPM       = 80
 FLASH_SIZE    = 5
 
 TEXT_X_PLACE  = 130
@@ -32,10 +32,12 @@ ledPin2 = Pin(17, Pin.OUT)
 buzzer = Pin(13, Pin.OUT)
 
 #globals
-human_time = []
+human_time = [0] * NUM_OF_INPUTS
+hits = 0
+pending_hit = False
+pending_time = 0
 expected_time = []
 errors = []
-hits = 0
 N = 0
 flashCount = 0
 processedBeats = 0
@@ -51,10 +53,13 @@ startPin.irq(trigger=Pin.IRQ_FALLING, handler=startGame)
 
 
 def hit(edgePin):
-    global hits, N, data, hitFlag
+    global hits, pending_hit, pending_time
+
     if N >= NUM_OF_CLICKS and hits < NUM_OF_INPUTS:
-        human_time.append(ticks_ms())
-        hits += 1
+        if not pending_hit:
+            pending_time = ticks_ms()
+            pending_hit = True
+            hits += 1
 edgePin.irq(trigger=Pin.IRQ_FALLING, handler=hit)
 
 #timer interrupts
@@ -84,6 +89,16 @@ def calculateExpectedTime(bpm, start_ms):
 
     for i in range(NUM_OF_INPUTS):
         expected_time.append(start_ms + beat_period_ms * (i + 1))
+
+def processPendingHit():
+    global pending_hit, processed_frames
+
+    if pending_hit:
+        human_time[processed_frames] = pending_time
+        pending_hit = False
+
+        processed_frames += 1
+        processInformation()
 
 def processInformation():
     global errors
@@ -145,21 +160,22 @@ startFlag = False
 initScreen()
 while 1:
     if startFlag == True:
-        human_time = []
-        expected_time = []
-        errors = []
+        human_time = [0] * NUM_OF_INPUTS
         hits = 0
+        pending_hit = False
+        pending_time = 0
         processed_frames = 0
         displayed_frames = 0
+        errors = []
 
         flashOutput(ledPin)
         bpm, ticks = countOff()
 
         calculateExpectedTime(bpm, ticks)
 
-        while displayed_frames <= NUM_OF_INPUTS:
-            if hits > processed_frames:
-                processed_frames += 1
-                processInformation()
+        while displayed_frames < NUM_OF_INPUTS:
+            if pending_hit:
+                processPendingHit()
                 displayed_frames += 1
+            sleep_ms(1)
         startFlag = False
