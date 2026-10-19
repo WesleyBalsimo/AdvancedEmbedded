@@ -15,7 +15,7 @@ edgePin = Pin(15, Pin.OUT, Pin.PULL_UP)
 def startGame():
   global startFlag
   if startFlag == False
-    startFlag = true
+    startFlag = True
   
 def seeBeat():
   global beatCount
@@ -23,14 +23,13 @@ def seeBeat():
 
 #two timer interrupts
 def startBeat():
-  global timerFlag, 
+  global timerFlag
   if 
 
-def endGame()
+def endGame():
   global startFlag, beatCount
-  if beatCount == NUM_OF_CLICKS + NUM_OF_INPUTS
+  if beatCount == (NUM_OF_CLICKS + NUM_OF_INPUTS)
     startFlag = False
   
-
-
-tim.Init(freq=
+  
+time.Init(freq=
