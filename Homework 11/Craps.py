@@ -1,5 +1,7 @@
-#Game of craps
+# Game of craps
 import LCD
+import bluetooth
+from ble_simple_peripheral import BLESimplePeripheral
 from machine import Pin, I2C
 from time import sleep_ms
 from random import randint
@@ -37,7 +39,7 @@ DICE2_X = 420
 DICE_Y = 115
 
 # Global variables
-off_phase_flag = False
+off_phase_flag = True
 on_phase_flag = False
 place_bet_flag = False
 
@@ -51,6 +53,18 @@ bet = 0
 place_bet_1 = 0
 place_bet_2 = 0
 
+# Buffer for incoming Bluetooth data
+rx_buffer = bytearray()
+
+def on_rx(data):
+    global rx_buffer
+
+    rx_buffer.extend(data)
+
+
+
+
+# functions ---
 def draw_screen():
 
     # Title
@@ -147,28 +161,62 @@ def roll_dice():
 
     return roll
 
-def take_bet():
-    global bank
-    bet = 0
-    #bluetooth get bet (message looks like "b'int\r\n")
+def receive_integer():
+    global rx_buffer
 
+    print("Waiting for Bluetooth input...")
+
+    while True:
+        if b'\n' in rx_buffer:
+            index = rx_buffer.index(b'\n')
+            message = rx_buffer[:index]
+            rx_buffer = rx_buffer[index + 1:]
+
+            print("Received:", message)
+
+            try:
+                value = int(message.strip())
+                print("Bet:", value)
+                return value
+
+            except ValueError:
+                print("Invalid bet received")
+
+        sleep_ms(20)
+
+def take_bet():
+    # Wait for Bluetooth input
+    sp.send(b"Enter pass line bet:\n")
+    bet = receive_integer()
+    # Limit bet to available bank
     if bet > bank:
         bet = bank
+
     return bet
 
 def take_bet_1():
-    global bank
-    bet = 0, 0
-    #bluetooth look for bet on 6 (message looks like "b'6bint\r\n")
-    #bluetooth look for bet on 8 (message looks like "b'8bint\r\n")
-    if bet[0] > bank:
-        bet = (bank, bet[1])
-    if bet[1] > bank:
-        bet = (bet[0], bank)
-    return bet
+    # Get bet for 6
+    sp.send(b"Enter place 6 bet:\n")
+    bet6 = receive_integer()
+    if bet6 > bank:
+        bet6 = bank
+    # Get bet for 8
+    sp.send(b"Enter place 8 bet:\n")
+    bet8 = receive_integer()
+    if bet8 > bank:
+        bet8 = bank
+    return bet6, bet8
 
-
+LCD.Init()
 draw_screen()
+print("Screen initialized")
+
+# Bluetooth initialization ---
+ble = bluetooth.BLE()
+sp = BLESimplePeripheral(ble)
+sp.on_write(on_rx)
+print("Bluetooth initialized")
+
 place_bet_flag = True
 while True:
 
@@ -188,19 +236,23 @@ while True:
             bank += (bet * 2)
             update_bank()
             print("You rolled a natural")
-            off_phase_flag = False
+
+            off_phase_flag = True
             place_bet_flag = True
 
         elif roll == 2 or roll == 3 or roll == 12:
             bank -= bet
-            print("You rolled craps")
             update_bank()
-            off_phase_flag = False
+            print("You rolled craps")
+
+            off_phase_flag = True
+            place_bet_flag = True
 
         else:
             point = roll
             print("Your point is: ", point)
             update_point()
+
             off_phase_flag = False
             place_bet_flag = True
             on_phase_flag = True
