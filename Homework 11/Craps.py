@@ -304,4 +304,6 @@ while True:
 
             update_point()
             update_bets()
+        else:
+            place_bet_flag = True
 
